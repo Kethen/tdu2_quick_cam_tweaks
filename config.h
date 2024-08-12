@@ -1,6 +1,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <stdint.h>
+
 #include <pthread.h>
 
 /*
@@ -13,8 +15,8 @@ struct overrides{
 	bool enable_steer_look;
 	bool enable_head_move;
 	bool override_fov;
-	float fov_min;
-	float fov_max;
+	int8_t fov_min;
+	int8_t fov_max;
 };
 
 struct coordinates_3d{

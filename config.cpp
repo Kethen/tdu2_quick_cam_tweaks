@@ -28,13 +28,17 @@ extern "C" {
 		#define LOG_GLOBAL_OVERRIDES_FLOAT(k){ \
 			LOG("%s: %f\n", STR(k), c->global_overrides.k); \
 		}
+		#define LOG_GLOBAL_OVERRIDES_INT8(k){ \
+			LOG("%s: %d\n", STR(k), c->global_overrides.k); \
+		}
 		LOG_GLOBAL_OVERRIDES_BOOL(enable_steer_look);
 		LOG_GLOBAL_OVERRIDES_BOOL(enable_head_move);
 		LOG_GLOBAL_OVERRIDES_BOOL(override_fov);
-		LOG_GLOBAL_OVERRIDES_FLOAT(fov_min);
-		LOG_GLOBAL_OVERRIDES_FLOAT(fov_max);
+		LOG_GLOBAL_OVERRIDES_INT8(fov_min);
+		LOG_GLOBAL_OVERRIDES_INT8(fov_max);
 		#undef LOG_GLOBAL_OVERRIDES_BOOL
 		#undef LOG_GLOBAL_OVERRIDES_FLOAT
+		#undef LOG_GLOBAL_OVERRIDES_INT8
 
 		#define LOG_GLOBAL_POS_OFFSET_FLOAT(k){ \
 			LOG("%s: %f\n", STR(k), c->global_pos_offset.k); \
