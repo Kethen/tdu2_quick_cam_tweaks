@@ -34,7 +34,7 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 		*(int8_t *)(last_camera_location + 0x5e4) = orig_camera.fov_min;
 		*(int8_t *)(last_camera_location + 0x5e4 + 1) = orig_camera.fov_max;
 		memcpy((void *)(last_camera_location + 0x300), (void *)orig_camera.steer_look_byte, 4);
-		memcpy((void *)(last_camera_location + 0x560), (void *)orig_camera.head_move_array, 0x30);
+		memcpy((void *)(last_camera_location + 0x5a0), (void *)orig_camera.head_move_array, 0x30);
 		*(float *)(last_camera_location + 0x540) = orig_camera.pos.x;
 		*(float *)(last_camera_location + 0x544) = orig_camera.pos.y;
 		*(float *)(last_camera_location + 0x548) = orig_camera.pos.z;
@@ -48,7 +48,7 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 	orig_camera.fov_min = *(int8_t *)(last_camera_location + 0x5e4);
 	orig_camera.fov_max = *(int8_t *)(last_camera_location + 0x5e4 + 1);
 	memcpy((void *)orig_camera.steer_look_byte, (void *)(last_camera_location + 0x300), 4);
-	memcpy((void *)orig_camera.head_move_array, (void *)(last_camera_location + 0x560), 0x30);
+	memcpy((void *)orig_camera.head_move_array, (void *)(last_camera_location + 0x5a0), 0x30);
 	orig_camera.pos.x = *(float *)(last_camera_location + 0x540);
 	orig_camera.pos.y = *(float *)(last_camera_location + 0x544);
 	orig_camera.pos.z = *(float *)(last_camera_location + 0x548);
@@ -70,7 +70,7 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 		}
 
 		if(!current_config.global_overrides.enable_head_move){
-			memset((void *)(last_camera_location + 0x560), 0, 0x30);
+			memset((void *)(last_camera_location + 0x5a0), 0, 0x30);
 		}
 
 		if(current_config.global_overrides.override_fov){
