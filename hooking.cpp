@@ -18,13 +18,13 @@ struct camera{
 void *f00ca2130_ref = (void *)0x00ca2130;
 uint32_t (__attribute__ ((stdcall)) *f00ca2130_orig)(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4);
 uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4){
-	LOG("%s: 0x%08x, 0x%08x, 0x%08x, 0x%08x\n", __func__, param_1, param_2, param_3, param_4);
+	LOG_VERBOSE("%s: 0x%08x, 0x%08x, 0x%08x, 0x%08x\n", __func__, param_1, param_2, param_3, param_4);
 
 	uint32_t ret = f00ca2130_orig(param_1, param_2, param_3, param_4);
 
 	uint32_t cptr = *(uint32_t *)(param_1 + 0x420);
 	int32_t view_id = *(int32_t *)(cptr + 0x2e8);
-	LOG("%s: cptr is 0x%08x, view_id is %d\n", __func__, cptr, view_id);
+	LOG_VERBOSE("%s: cptr is 0x%08x, view_id is %d\n", __func__, cptr, view_id);
 
 	static uint32_t last_camera_location = 0;
 	static struct camera orig_camera = {0};
@@ -56,7 +56,7 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 	orig_camera.ori_pos.y = *(float *)(last_camera_location + 0x554);
 	orig_camera.ori_pos.z = *(float *)(last_camera_location + 0x558);
 
-	LOG("%s: fov_min %d, fov_max %d\n", __func__, orig_camera.fov_min, orig_camera.fov_max);
+	LOG_VERBOSE("%s: fov_min %d, fov_max %d\n", __func__, orig_camera.fov_min, orig_camera.fov_max);
 
 	// apply camera changes from config
 	if(view_id == 23 || view_id == 24){
