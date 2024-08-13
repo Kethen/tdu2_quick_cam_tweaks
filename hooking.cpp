@@ -8,6 +8,17 @@
 #include "config.h"
 #include "logging.h"
 
+#include <windows.h>
+#include <memoryapi.h>
+
+void patch_memory(void *location, void *buffer, int len){
+	DWORD orig_protect;
+	VirtualProtect(location, len, PAGE_EXECUTE_READWRITE, &orig_protect);
+	memcpy(location, buffer, len);
+	DWORD dummy;
+	VirtualProtect(location, len, orig_protect, &dummy);
+}
+
 struct camera{
 	int8_t fov_min;
 	int8_t fov_max;
@@ -52,6 +63,8 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 	static uint32_t last_camera_location = 0;
 	static struct camera orig_camera = {0};
 
+	// 0x7e0 time spent on dirt
+
 	if(last_camera_location != 0){
 		// restore last camera
 		*(int8_t *)(last_camera_location + 0x5e4) = orig_camera.fov_min;
@@ -84,7 +97,7 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 	LOG_VERBOSE("%s: fov_min %d, fov_max %d\n", __func__, orig_camera.fov_min, orig_camera.fov_max);
 
 	// apply camera changes from config
-	if(view_id >= 20 || view_id <= 24){
+	if(view_id >= 20 && view_id <= 24){
 		pthread_mutex_lock(&current_config_mutex);
 
 		if(view_id == 23 || view_id == 24){
@@ -106,6 +119,15 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 			memcpy((void *)(last_camera_location + 0x5ec), bytes, 4);
 		}
 
+		// JZ -> JMP
+		uint8_t bytes_offroad_vibration_enabled[] = {0x0f, 0x84, 0xa2, 0x00, 0x00, 0x00};
+		//uint8_t bytes_disabled[] = {0x66, 0xe9, 0xa4, 0x00, 0x90, 0x90};
+		uint8_t bytes_offroad_vibration_disabled[] = {0xe9, 0xa3, 0x00, 0x00, 0x00, 0x90};
+		if(current_config.global_overrides.enable_offroad_vibration){
+			patch_memory((void *)0x00c8f128, (void *)bytes_offroad_vibration_enabled, 6);
+		}else{
+			patch_memory((void *)0x00c8f128, (void *)bytes_offroad_vibration_disabled, 6);
+		}
 
 		if(current_config.global_overrides.override_fov){
 			*(int8_t *)(last_camera_location + 0x5e4) = current_config.global_overrides.fov_min;
