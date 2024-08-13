@@ -33,6 +33,7 @@ extern "C" {
 		}
 		LOG_GLOBAL_OVERRIDES_BOOL(enable_steer_look);
 		LOG_GLOBAL_OVERRIDES_BOOL(enable_head_move);
+		LOG_GLOBAL_OVERRIDES_BOOL(enable_speed_vibration);
 		LOG_GLOBAL_OVERRIDES_BOOL(enable_rev_vibration);
 		LOG_GLOBAL_OVERRIDES_BOOL(enable_offroad_vibration);
 		LOG_GLOBAL_OVERRIDES_BOOL(override_fov);
@@ -110,6 +111,7 @@ extern "C" {
 		}
 		READ_GLOBAL_OVERRIDE(enable_steer_look, true);
 		READ_GLOBAL_OVERRIDE(enable_head_move, true);
+		READ_GLOBAL_OVERRIDE(enable_speed_vibration, true);
 		READ_GLOBAL_OVERRIDE(enable_rev_vibration, true);
 		READ_GLOBAL_OVERRIDE(enable_offroad_vibration, true);
 		READ_GLOBAL_OVERRIDE(override_fov, false);

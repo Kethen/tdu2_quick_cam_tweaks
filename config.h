@@ -14,6 +14,7 @@
 struct overrides{
 	bool enable_steer_look;
 	bool enable_head_move;
+	bool enable_speed_vibration;
 	bool enable_rev_vibration;
 	bool enable_offroad_vibration;
 	bool override_fov;

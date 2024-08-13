@@ -111,18 +111,27 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 			}
 		}
 
-		if(!current_config.global_overrides.enable_rev_vibration){
-			//uint8_t bytes[] = {0x00, 0x96, 0x46, 0x96};
-			//uint8_t bytes[] = {0x96, 0x96, 0x96, 0x96};
-			uint8_t bytes[] = {0xFF, 0xFF, 0xFF, 0xFF};
-			//uint8_t bytes[] = {0x00, 0x00, 0x00, 0x00};
-			memcpy((void *)(last_camera_location + 0x5ec), bytes, 4);
+		// JBE -> JMP
+		static uint8_t byte_rev_vibration_enabled = 0x76;
+		static uint8_t byte_rev_vibration_disabled = 0xeb;
+		if(current_config.global_overrides.enable_rev_vibration){
+			patch_memory((void *)0x00c8efea, (void *)&byte_rev_vibration_enabled, 1);
+		}else{
+			patch_memory((void *)0x00c8efea, (void *)&byte_rev_vibration_disabled, 1);
+		}
+
+		// JA -> JMP
+		static uint8_t byte_speed_vibration_enabled = 0x77;
+		static uint8_t byte_speed_vibration_disabled = 0xeb;
+		if(current_config.global_overrides.enable_speed_vibration){
+			patch_memory((void *)0x00c8f042, (void *)&byte_speed_vibration_enabled, 1);
+		}else{
+			patch_memory((void *)0x00c8f042, (void *)&byte_speed_vibration_disabled, 1);
 		}
 
 		// JZ -> JMP
-		uint8_t bytes_offroad_vibration_enabled[] = {0x0f, 0x84, 0xa2, 0x00, 0x00, 0x00};
-		//uint8_t bytes_disabled[] = {0x66, 0xe9, 0xa4, 0x00, 0x90, 0x90};
-		uint8_t bytes_offroad_vibration_disabled[] = {0xe9, 0xa3, 0x00, 0x00, 0x00, 0x90};
+		static uint8_t bytes_offroad_vibration_enabled[] = {0x0f, 0x84, 0xa2, 0x00, 0x00, 0x00};
+		static uint8_t bytes_offroad_vibration_disabled[] = {0xe9, 0xa3, 0x00, 0x00, 0x00, 0x90};
 		if(current_config.global_overrides.enable_offroad_vibration){
 			patch_memory((void *)0x00c8f128, (void *)bytes_offroad_vibration_enabled, 6);
 		}else{
