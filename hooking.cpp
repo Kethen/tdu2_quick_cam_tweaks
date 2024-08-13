@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <fcntl.h>
+
 #include <MinHook.h>
 
 #include "config.h"
@@ -11,6 +13,7 @@ struct camera{
 	int8_t fov_max;
 	char steer_look_byte[0x4];
 	char head_move_array[0x30];
+	char rev_vibration_array[0x4];
 	struct coordinates_3d pos;
 	struct coordinates_3d ori_pos;
 };
@@ -24,7 +27,27 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 
 	uint32_t cptr = *(uint32_t *)(param_1 + 0x420);
 	int32_t view_id = *(int32_t *)(cptr + 0x2e8);
+	// 20 chase near
+	// 21 chase far
+	// 22 bumper
+	// 23 cockpit
+	// 24 hood
 	LOG_VERBOSE("%s: cptr is 0x%08x, view_id is %d\n", __func__, cptr, view_id);
+
+	#if 0
+	if(view_id >= 20 && view_id <=24){
+		char path_buf[64];
+		sprintf(path_buf, "./camera_mem_dump_%d_%08x.bin", view_id, cptr);
+		int dump_fd = open(path_buf, O_WRONLY | O_BINARY | O_TRUNC | O_CREAT, 00644);
+		if(dump_fd >= 0){
+			LOG("%s: writing camera memory to %s\n", __func__, path_buf);
+			write_data_to_fd(dump_fd, (const char *)cptr, 0x1000);
+			close(dump_fd);
+		}else{
+			LOG("%s: failed dumping camera memory\n", __func__);
+		}
+	}
+	#endif
 
 	static uint32_t last_camera_location = 0;
 	static struct camera orig_camera = {0};
@@ -35,6 +58,7 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 		*(int8_t *)(last_camera_location + 0x5e4 + 1) = orig_camera.fov_max;
 		memcpy((void *)(last_camera_location + 0x300), (void *)orig_camera.steer_look_byte, 4);
 		memcpy((void *)(last_camera_location + 0x5a0), (void *)orig_camera.head_move_array, 0x30);
+		memcpy((void *)(last_camera_location + 0x5ec), (void *)orig_camera.rev_vibration_array, 4);
 		*(float *)(last_camera_location + 0x540) = orig_camera.pos.x;
 		*(float *)(last_camera_location + 0x544) = orig_camera.pos.y;
 		*(float *)(last_camera_location + 0x548) = orig_camera.pos.z;
@@ -49,6 +73,7 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 	orig_camera.fov_max = *(int8_t *)(last_camera_location + 0x5e4 + 1);
 	memcpy((void *)orig_camera.steer_look_byte, (void *)(last_camera_location + 0x300), 4);
 	memcpy((void *)orig_camera.head_move_array, (void *)(last_camera_location + 0x5a0), 0x30);
+	memcpy((void *)orig_camera.rev_vibration_array, (void *)(last_camera_location + 0x5ec), 4);
 	orig_camera.pos.x = *(float *)(last_camera_location + 0x540);
 	orig_camera.pos.y = *(float *)(last_camera_location + 0x544);
 	orig_camera.pos.z = *(float *)(last_camera_location + 0x548);
@@ -59,19 +84,27 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 	LOG_VERBOSE("%s: fov_min %d, fov_max %d\n", __func__, orig_camera.fov_min, orig_camera.fov_max);
 
 	// apply camera changes from config
-	if(view_id == 23 || view_id == 24){
+	if(view_id >= 20 || view_id <= 24){
 		pthread_mutex_lock(&current_config_mutex);
 
-		if(!current_config.global_overrides.enable_steer_look){
-			*(uint8_t *)(last_camera_location + 0x300) = 9;
-			*(uint8_t *)(last_camera_location + 0x301) = 0;
-			*(uint8_t *)(last_camera_location + 0x302) = 4;
-			*(uint8_t *)(last_camera_location + 0x303) = 0;
+		if(view_id == 23 || view_id == 24){
+			if(!current_config.global_overrides.enable_steer_look){
+				uint8_t bytes[] = {9, 0, 4, 0};
+				memcpy((void *)(last_camera_location + 0x300), bytes, 4);
+			}
+
+			if(!current_config.global_overrides.enable_head_move){
+				memset((void *)(last_camera_location + 0x5a0), 0, 0x30);
+			}
 		}
 
-		if(!current_config.global_overrides.enable_head_move){
-			memset((void *)(last_camera_location + 0x5a0), 0, 0x30);
+		if(!current_config.global_overrides.enable_rev_vibration){
+			//uint8_t bytes[] = {0x00, 0x96, 0x46, 0x96};
+			uint8_t bytes[] = {0x96, 0x96, 0x96, 0x96};
+			//uint8_t bytes[] = {0x00, 0x00, 0x00, 0x00};
+			memcpy((void *)(last_camera_location + 0x5ec), bytes, 4);
 		}
+
 
 		if(current_config.global_overrides.override_fov){
 			*(int8_t *)(last_camera_location + 0x5e4) = current_config.global_overrides.fov_min;

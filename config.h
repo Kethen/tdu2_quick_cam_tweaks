@@ -14,6 +14,7 @@
 struct overrides{
 	bool enable_steer_look;
 	bool enable_head_move;
+	bool enable_rev_vibration;
 	bool override_fov;
 	int8_t fov_min;
 	int8_t fov_max;
