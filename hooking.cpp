@@ -100,7 +100,8 @@ uint32_t __attribute__ ((stdcall)) f00ca2130_patched(uint32_t param_1, uint32_t 
 
 		if(!current_config.global_overrides.enable_rev_vibration){
 			//uint8_t bytes[] = {0x00, 0x96, 0x46, 0x96};
-			uint8_t bytes[] = {0x96, 0x96, 0x96, 0x96};
+			//uint8_t bytes[] = {0x96, 0x96, 0x96, 0x96};
+			uint8_t bytes[] = {0xFF, 0xFF, 0xFF, 0xFF};
 			//uint8_t bytes[] = {0x00, 0x00, 0x00, 0x00};
 			memcpy((void *)(last_camera_location + 0x5ec), bytes, 4);
 		}
